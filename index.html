@@ -522,6 +522,24 @@ body {
   font-size: 0.65rem;
   color: var(--text-dim);
 }
+.slot.slot-full {
+  background: #d8e0ec;
+  border-color: #b8c4d8;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none !important;
+  box-shadow: none;
+}
+.slot.slot-full .slot-time {
+  color: #8a96b0;
+}
+.slot.slot-full .slot-dur {
+  font-family: var(--fn-bold);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #8a96b0;
+  letter-spacing: 0.04em;
+}
 
 /* ── PRODUCTS ── */
 .products { display: flex; flex-direction: column; gap: 10px; }
