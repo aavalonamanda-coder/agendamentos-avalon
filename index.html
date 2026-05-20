@@ -254,13 +254,15 @@ body {
   background: var(--win-bg2);
   border: 2px solid var(--border);
   border-radius: 10px;
-  padding: 10px 16px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
   gap: 0;
   max-width: 680px;
   margin: 0 auto 20px;
   box-shadow: 2px 3px 8px rgba(40,60,120,0.12);
+  overflow: hidden;
 }
 .step-item {
   display: flex;
@@ -277,7 +279,7 @@ body {
   font-size: 1rem;
 }
 .step-num {
-  width: 26px; height: 26px;
+  width: 24px; height: 24px;
   border-radius: 6px;
   border: 2px solid var(--border-l);
   background: var(--btn-face);
@@ -443,6 +445,12 @@ body {
   transform: scale(1.05);
 }
 .cal-day.sel::after { display: none; }
+.cal-day.full {
+  color: var(--text-dim);
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 
 /* ── DELIVERY NOTICE ── */
 .delivery-notice {
@@ -737,6 +745,78 @@ body {
 .back { margin-bottom: 18px; }
 #after-pay { display: none; margin-top: 16px; }
 
+
+/* ── POPUP MODAL ── */
+.popup-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(20,30,60,0.55);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.popup-overlay.show { display: flex; }
+.popup-win {
+  background: var(--win-bg2);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 4px 6px 32px rgba(40,60,120,0.3);
+  max-width: 420px;
+  width: 100%;
+  overflow: hidden;
+  animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.popup-title {
+  background: linear-gradient(90deg, var(--titlebar), var(--purple));
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--fn-bold);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: #fff;
+}
+.popup-body {
+  padding: 22px 22px 18px;
+}
+.popup-msg {
+  font-family: var(--fn-body);
+  font-size: 0.88rem;
+  color: var(--text-mid);
+  line-height: 1.65;
+  margin-bottom: 18px;
+  text-align: center;
+}
+.popup-msg strong {
+  font-family: var(--fn-bold);
+  color: var(--titlebar);
+}
+.popup-msg .popup-name {
+  font-family: var(--fn-seasb);
+  font-size: 1.05rem;
+  color: var(--titlebar);
+  display: block;
+  margin-bottom: 6px;
+}
+.popup-cal-status {
+  font-family: var(--fn-body);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 14px;
+  min-height: 20px;
+}
+.popup-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.popup-actions .btn { width: 100%; }
+
 /* ── PIXEL CURSOR DECO ── */
 .cursor-deco {
   position: fixed;
@@ -753,11 +833,10 @@ body {
 
 @media (max-width: 500px) {
   .slots-grid { grid-template-columns: 1fr 1fr; }
-  .steps-bar { flex-wrap: wrap; gap: 6px; }
+  .steps-bar { overflow-x: auto; } .step-item { min-width: 0; } .step-lbl { font-size: 0.5rem; }
   .step-item::after { display: none; }
 }
 </style>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -816,9 +895,7 @@ body {
   <div class="statusbar">
     <div class="status-pill"><div class="status-dot"></div> Online · Quartas e Quintas</div>
     <div class="status-pill">🕐 1h a 1h30 por sessão</div>
-    <div id="auth-status" class="status-pill" style="margin-left:auto;">
-      <span id="auth-label">⚪ Agenda não conectada</span>
-    </div>
+
   </div>
 </div>
 
@@ -947,33 +1024,21 @@ body {
       <div class="back"><button class="btn btn-ghost" onclick="go(3)">‹ Voltar</button></div>
       <div class="summary" id="summary-box"></div>
       <div class="notice">
-        Ao clicar em <strong>Realizar Pagamento</strong>, você será levada à página do seu serviço. Após concluir, envie o comprovante pelo WhatsApp para que Amanda confirme seu horário.
+        Revise seu resumo e clique em <strong>Realizar Pagamento</strong> para prosseguir.
       </div>
-      <a class="btn btn-primary" id="pay-btn" href="#" target="_blank" rel="noopener" onclick="afterPay()">
+      <button class="btn btn-primary" id="pay-btn" onclick="openPopup()">
         ✦ Realizar Pagamento
-      </a>
-      <div id="after-pay">
-        <div id="cal-success" class="notice" style="display:none; background:rgba(96,200,96,0.1); border-color:rgba(96,200,96,0.3); color:#2a6a2a; margin-bottom:12px;">
-          ✅ Agendamento registrado no Google Agenda automaticamente!
-        </div>
-        <a class="btn btn-wpp" href="https://wa.me/message/EU4VCDBX7WORH1" target="_blank" rel="noopener" style="margin-top:12px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          Enviar comprovante pelo WhatsApp
-        </a>
-        <div class="notice">
-          Seu horário ficará reservado assim que Amanda confirmar o comprovante. Você receberá a confirmação em até 24h.
-        </div>
-      </div>
+      </button>
     </div>
   </div>
 </div>
 
 <script>
 const PRODUCTS = [
-  { id:1, icon:'🧭', name:'Rota Revelada',     desc:'Leitura e orientação para o mapeamento do seu caminho sagrado',              url:'https://loja.infinitepay.io/avalonamanda/wht6780-rota-revelada' },
-  { id:2, icon:'🌙', name:'Templo de Inanna',   desc:'Sessão de imersão nos mistérios do feminino sagrado e da descida',          url:'https://loja.infinitepay.io/avalonamanda/znz7691-caderno-artesanal-de-couro' },
-  { id:3, icon:'🏴‍☠️', name:'Carta de Travessia', desc:'Leitura aprofundada de cartas para momentos de transição e encruzilhadas', url:'https://loja.infinitepay.io/avalonamanda/ukj9401-graphic-novel-importada' },
-  { id:4, icon:'🌊', name:'Mapa de Navegação',  desc:'Sessão de acompanhamento contínuo e orientação transpessoal',              url:'https://loja.infinitepay.io/avalonamanda/uad5238-literatura-brasileira-contemporanea' },
+  { id:1, icon:'🧭', name:'Rota Revelada',     desc:'Resolve a bagunça da sua cabeça e te dá norte.',              url:'https://loja.infinitepay.io/avalonamanda/wht6780-rota-revelada' },
+  { id:2, icon:'🌙', name:'Templo de Inanna',   desc:'Resolve a bagunça do seu coração e te dá soberania.',          url:'https://loja.infinitepay.io/avalonamanda/znz7691-caderno-artesanal-de-couro' },
+  { id:3, icon:'🏴‍☠️', name:'Carta de Travessia', desc:'Decodifica seu ano com 10 segredos.', url:'https://loja.infinitepay.io/avalonamanda/ukj9401-graphic-novel-importada' },
+  { id:4, icon:'🌊', name:'Mapa de Navegação',  desc:'Organiza o seu ano com clareza absoluta.',              url:'https://loja.infinitepay.io/avalonamanda/uad5238-literatura-brasileira-contemporanea' },
 ];
 const AVAIL = [3,4];
 const SLOTS = [
@@ -985,7 +1050,7 @@ const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Ago
 const WDAYS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 const WNAMES=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
 
-const S={month:new Date().getMonth(),year:new Date().getFullYear(),date:null,slot:null,prod:null,name:'',email:'',phone:''};
+const S={month:new Date().getMonth(),year:new Date().getFullYear(),date:null,slot:null,prod:null,name:'',email:'',phone:'',occupied:[]};
 
 function renderCal(){
   const g=document.getElementById('cal-grid'),l=document.getElementById('cal-lbl');
@@ -1025,18 +1090,21 @@ function renderSlots(){
   const g=document.getElementById('slots-grid'),h=document.getElementById('slots-head');
   h.textContent=WNAMES[S.date.getDay()]+', '+S.date.getDate()+' de '+MONTHS[S.date.getMonth()]+' — Horários disponíveis';
   g.innerHTML='';
+  var occ = S.occupied || [];
+  var d = S.date.getDate();
   SLOTS.forEach((sl,i)=>{
+    var isOcc = occ.some(function(o){ return o.day===d && o.slot===i; });
     const e=document.createElement('div');
-    e.className='slot'+(S.slot===i?' sel':'');
-    e.innerHTML=`<span class="slot-time">${sl.label}</span>`;
-    e.addEventListener('click',()=>{S.slot=i;renderSlots();chk2();});
+    e.className='slot'+(S.slot===i?' sel':'')+(isOcc?' slot-full':'');
+    e.innerHTML=`<span class="slot-time">${sl.label}</span>${isOcc?'<span class="slot-dur">ocupado</span>':''}`;
+    if(!isOcc) e.addEventListener('click',()=>{S.slot=i;renderSlots();chk2();});
     g.appendChild(e);
   });
 }
 function chk1(){document.getElementById('btn1').disabled=!(S.prod!==null);}
 
-document.getElementById('prev-m').addEventListener('click',()=>{S.month--;if(S.month<0){S.month=11;S.year--;}renderCal();});
-document.getElementById('next-m').addEventListener('click',()=>{S.month++;if(S.month>11){S.month=0;S.year++;}renderCal();});
+document.getElementById('prev-m').addEventListener('click',()=>{S.month--;if(S.month<0){S.month=11;S.year--;}loadOccupiedSlots().then(function(o){S.occupied=o;renderCal();});});
+document.getElementById('next-m').addEventListener('click',()=>{S.month++;if(S.month>11){S.month=0;S.year++;}loadOccupiedSlots().then(function(o){S.occupied=o;renderCal();});});
 document.getElementById('btn1').addEventListener('click',()=>go(2));
 
 function renderProds(){
@@ -1076,162 +1144,31 @@ function renderSummary(){
     <div class="sum-row"><span class="sum-k">E-mail</span><span class="sum-v">${S.email}</span></div>
     <div class="sum-row"><span class="sum-k">Nascimento</span><span class="sum-v">${S.birth ? new Date(S.birth+'T12:00:00').toLocaleDateString('pt-BR') : '—'}</span></div>
     <div class="sum-row"><span class="sum-k">Identidade de gênero</span><span class="sum-v">${S.gender||'—'}</span></div>`;
-  document.getElementById('pay-btn').href=p.url;
-}
-// ── GOOGLE CALENDAR INTEGRATION ──
-const CLIENT_ID = '334164154314-3hbucj8scb63861bcner8ghfvqat1br4.apps.googleusercontent.com';
-const SCOPES = 'https://www.googleapis.com/auth/calendar.events';
-let tokenClient;
-let pendingCalendarEvent = null;
-
-function initGoogleAuth(){
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    callback: async (resp) => {
-      if(resp.error){ console.error(resp); return; }
-      document.getElementById('auth-label').textContent = '🟢 Agenda conectada';
-      if(pendingCalendarEvent){
-        await createCalendarEvent(pendingCalendarEvent);
-        pendingCalendarEvent = null;
-      }
-    }
-  });
+  // pay url set via openPopup
 }
 
-async function createCalendarEvent(eventData){
-  const isCT = isCarta();
-  const dateStr = eventData.date.toISOString().split('T')[0];
-  
-  let event;
-  if(isCT){
-    // Carta de Travessia: full-day event
-    event = {
-      summary: '🏴‍☠️ Carta de Travessia — ' + eventData.name,
-      description: 'Serviço: Carta de Travessia
-Cliente: ' + eventData.name + '
-E-mail: ' + eventData.email + '
-WhatsApp: ' + eventData.phone + (eventData.gender ? '
-Identidade de gênero: ' + eventData.gender : '') + (eventData.birth ? '
-Nascimento: ' + new Date(eventData.birth+'T12:00:00').toLocaleDateString('pt-BR') : '') + '
 
-Entrega em até 15 dias úteis por e-mail.',
-      start: { date: dateStr },
-      end:   { date: dateStr },
-      colorId: '3'
-    };
-  } else {
-    const slot = SLOTS[eventData.slot];
-    const [sh, sm] = slot.label.split(':');
-    const [eh, em] = slot.end.split(':');
-    event = {
-      summary: '✦ ' + PRODUCTS[eventData.prod].name + ' — ' + eventData.name,
-      description: 'Serviço: ' + PRODUCTS[eventData.prod].name + '
-Cliente: ' + eventData.name + '
-E-mail: ' + eventData.email + '
-WhatsApp: ' + eventData.phone + (eventData.gender ? '
-Identidade de gênero: ' + eventData.gender : '') + (eventData.birth ? '
-Nascimento: ' + new Date(eventData.birth+'T12:00:00').toLocaleDateString('pt-BR') : ''),
-      start: { dateTime: dateStr + 'T' + sh.padStart(2,'0') + ':' + sm + ':00', timeZone: 'America/Sao_Paulo' },
-      end:   { dateTime: dateStr + 'T' + eh.padStart(2,'0') + ':' + em + ':00', timeZone: 'America/Sao_Paulo' },
-      colorId: '9'
-    };
-  }
-
-  try {
-    const resp = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + google.accounts.oauth2.getToken() ? gapi_token : '', 'Content-Type': 'application/json' },
-      body: JSON.stringify(event)
-    });
-    // store token for reuse
-  } catch(e){ console.error('Calendar error:', e); }
+function openPopup(){
+  var p = PRODUCTS[S.prod];
+  document.getElementById('popup-service-name').textContent = p.name;
+  document.getElementById('popup-pay-btn').href = p.url;
+  document.getElementById('popup-cal-status').textContent = '🟡 Registrando no Google Agenda...';
+  document.getElementById('popup-overlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  var data = { date: S.date, slot: S.slot, prod: S.prod, name: S.name, email: S.email, phone: S.phone, birth: S.birth || '', gender: S.gender || '' };
+  addToCalendar(data);
 }
 
-// Simpler token approach using fetch directly
-let gcalToken = null;
-
-function initGoogleAuthSimple(){
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    callback: async (resp) => {
-      if(resp.error){ console.error(resp); return; }
-      gcalToken = resp.access_token;
-      document.getElementById('auth-label').textContent = '🟢 Agenda conectada';
-      if(pendingCalendarEvent){
-        await addToCalendar(pendingCalendarEvent);
-        pendingCalendarEvent = null;
-      }
-    }
-  });
+function closePopup(){
+  document.getElementById('popup-overlay').classList.remove('show');
+  document.body.style.overflow = '';
 }
 
-async function addToCalendar(data){
-  if(!gcalToken){ 
-    pendingCalendarEvent = data;
-    tokenClient.requestAccessToken();
-    return;
-  }
-  const isCT = isCarta();
-  const dateStr = data.date.toISOString().split('T')[0];
-  let event;
-  if(isCT){
-    event = {
-      summary: '🏴‍☠️ Carta de Travessia — ' + data.name,
-      description: 'Cliente: '+data.name+'
-E-mail: '+data.email+'
-WhatsApp: '+data.phone+(data.gender?'
-Gênero: '+data.gender:'')+(data.birth?'
-Nascimento: '+new Date(data.birth+'T12:00:00').toLocaleDateString('pt-BR'):'')+'
+document.addEventListener('click', function(e){
+  if(e.target.id === 'popup-overlay') closePopup();
+});
 
-Entrega: até 15 dias úteis por e-mail.',
-      start:{ date: dateStr },
-      end:  { date: dateStr },
-      colorId:'3'
-    };
-  } else {
-    const sl = SLOTS[data.slot];
-    const ds = dateStr + 'T';
-    event = {
-      summary: '✦ '+PRODUCTS[data.prod].name+' — '+data.name,
-      description: 'Serviço: '+PRODUCTS[data.prod].name+'
-Cliente: '+data.name+'
-E-mail: '+data.email+'
-WhatsApp: '+data.phone+(data.gender?'
-Gênero: '+data.gender:'')+(data.birth?'
-Nascimento: '+new Date(data.birth+'T12:00:00').toLocaleDateString('pt-BR'):''),
-      start:{ dateTime: ds+sl.label+':00', timeZone:'America/Sao_Paulo' },
-      end:  { dateTime: ds+sl.end+':00',   timeZone:'America/Sao_Paulo' },
-      colorId:'9'
-    };
-  }
-  try {
-    const r = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events',{
-      method:'POST',
-      headers:{'Authorization':'Bearer '+gcalToken,'Content-Type':'application/json'},
-      body: JSON.stringify(event)
-    });
-    if(r.ok){
-      document.getElementById('cal-success').style.display='block';
-    }
-  } catch(e){ console.error(e); }
-}
-
-function afterPay(){
-  setTimeout(()=>{
-    document.getElementById('after-pay').style.display='block';
-    document.getElementById('after-pay').scrollIntoView({behavior:'smooth'});
-    // Trigger calendar add
-    const data = {
-      date: S.date, slot: S.slot, prod: S.prod,
-      name: S.name, email: S.email, phone: S.phone,
-      birth: S.birth, gender: S.gender
-    };
-    addToCalendar(data);
-  },900);
-}
-// Track the furthest step reached
+// ── NAVIGATION ──
 let maxStep = 1;
 
 function go(n){
@@ -1246,30 +1183,31 @@ function go(n){
   window.scrollTo({top:0,behavior:'smooth'});
   if(n===1)renderProds();
   if(n===2){
-    renderCal();
-    if(S.date){
-      if(isCarta()){
-        document.getElementById('slots-wrap').style.display='none';
-        document.getElementById('delivery-notice').style.display='block';
+    loadOccupiedSlots().then(function(occ){
+      S.occupied = occ;
+      renderCal();
+      if(S.date){
+        if(isCarta()){
+          document.getElementById('slots-wrap').style.display='none';
+          document.getElementById('delivery-notice').style.display='block';
+        } else {
+          document.getElementById('slots-wrap').style.display='block';
+          document.getElementById('delivery-notice').style.display='none';
+          renderSlots();
+        }
       } else {
-        document.getElementById('slots-wrap').style.display='block';
+        document.getElementById('slots-wrap').style.display='none';
         document.getElementById('delivery-notice').style.display='none';
-        renderSlots();
       }
-    } else {
-      document.getElementById('slots-wrap').style.display='none';
-      document.getElementById('delivery-notice').style.display='none';
-    }
+    });
   }
   if(n===4)renderSummary();
-  // Update click listeners after each navigation
   updateStepClicks();
 }
 
 function updateStepClicks(){
   for(let i=1;i<=4;i++){
     const s=document.getElementById('step-'+i);
-    // Remove old listener by cloning
     const clone=s.cloneNode(true);
     s.parentNode.replaceChild(clone,s);
     if(i<=maxStep){
@@ -1279,19 +1217,84 @@ function updateStepClicks(){
   }
 }
 
+// ── INIT ──
 renderProds();
 updateStepClicks();
 
-// Init Google Auth when library loads
-window.addEventListener('load', ()=>{
-  const waitForGoogle = setInterval(()=>{
-    if(window.google && google.accounts){
-      clearInterval(waitForGoogle);
-      initGoogleAuthSimple();
-      document.getElementById('auth-label').textContent = '🟡 Clique em Realizar Pagamento para conectar';
+// ── APPS SCRIPT INTEGRATION ──
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTnlxwaR_eqiASF471x5gXT94RYv5Ps1whbDujnOSAoMJYjWprxRtUZchAn9VqJ9Y8hw/exec';
+
+async function addToCalendar(data){
+  var d = new Date(data.date);
+  d.setHours(12,0,0,0);
+  var dateStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  var payload = {
+    date:     dateStr,
+    name:     data.name,
+    email:    data.email,
+    phone:    data.phone,
+    gender:   data.gender  || '',
+    birth:    data.birth   || '',
+    isCarta:  isCarta(),
+    slot:     data.slot !== null ? data.slot : -1,
+    service:  PRODUCTS[data.prod].name
+  };
+  try {
+    var r = await fetch(SCRIPT_URL + '?action=createEvent&data=' + encodeURIComponent(JSON.stringify(payload)));
+    var json = await r.json();
+    if(json.status === 'ok'){
+      document.getElementById('popup-cal-status').textContent = '🟢 Registrado no Google Agenda!';
+    } else {
+      document.getElementById('popup-cal-status').textContent = '⚠️ Não registrado automaticamente. Envie o comprovante pelo WhatsApp.';
+      console.error(json.message);
     }
-  }, 200);
-});
+  } catch(e){
+    document.getElementById('popup-cal-status').textContent = '⚠️ Erro de conexão. Envie o comprovante pelo WhatsApp.';
+    console.error(e);
+  }
+}
+
+async function loadOccupiedSlots(){
+  try {
+    var now = new Date();
+    var year = S.month === now.getMonth() && S.year === now.getFullYear() ? now.getFullYear() : S.year;
+    var r = await fetch(SCRIPT_URL + '?action=getOccupied&year=' + S.year + '&month=' + (S.month+1));
+    var json = await r.json();
+    if(json.status === 'ok') return json.occupied || [];
+  } catch(e){ console.error(e); }
+  return [];
+}
 </script>
+
+<!-- ── POPUP MODAL ── -->
+<div class="popup-overlay" id="popup-overlay">
+  <div class="popup-win">
+    <div class="popup-title">
+      <span>✦</span>
+      <span id="popup-title-text">Quase lá, Navegante!</span>
+      <div class="titlebar-btns" style="margin-left:auto;">
+        <div class="tb-btn" onclick="closePopup()">✕</div>
+      </div>
+    </div>
+    <div class="popup-body">
+      <div class="popup-msg">
+        <span class="popup-name" id="popup-service-name"></span>
+        Seu agendamento está sendo registrado no Google Agenda. Após o pagamento, envie o comprovante pelo WhatsApp para confirmar sua sessão.
+      </div>
+      <div class="popup-cal-status" id="popup-cal-status">🟡 Registrando no Google Agenda...</div>
+      <div class="popup-actions">
+        <a class="btn btn-wpp" id="popup-wpp-btn" href="https://wa.me/message/EU4VCDBX7WORH1" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Enviar comprovante pelo WhatsApp
+        </a>
+        <a class="btn btn-primary" id="popup-pay-btn" href="#" target="_blank" rel="noopener">
+          ✦ Ir para o Pagamento
+        </a>
+        <button class="btn btn-ghost" onclick="closePopup()">Voltar e revisar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
