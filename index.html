@@ -597,6 +597,19 @@ body {
   text-transform: uppercase;
   color: var(--titlebar);
   margin-bottom: 4px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.prod-price {
+  font-family: var(--fn-bold);
+  font-size: 0.7rem;
+  color: var(--purple);
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+  text-transform: none;
+  white-space: nowrap;
 }
 .prod-desc {
   font-family: var(--fn-bold);
@@ -1055,10 +1068,10 @@ body {
 
 <script>
 const PRODUCTS = [
-  { id:1, icon:'🧭', name:'Rota Revelada',     desc:'Resolve a bagunça da sua cabeça e te dá norte.',              url:'https://loja.infinitepay.io/avalonamanda/wht6780-rota-revelada' },
-  { id:2, icon:'🌙', name:'Templo de Inanna',   desc:'Resolve a bagunça do seu coração e te dá soberania.',          url:'https://loja.infinitepay.io/avalonamanda/znz7691-caderno-artesanal-de-couro' },
-  { id:3, icon:'🏴‍☠️', name:'Carta de Travessia', desc:'Decodifica seu ano com 10 segredos.', url:'https://loja.infinitepay.io/avalonamanda/ukj9401-graphic-novel-importada' },
-  { id:4, icon:'🌊', name:'Mapa de Navegação',  desc:'Organiza o seu ano com clareza absoluta.',              url:'https://loja.infinitepay.io/avalonamanda/uad5238-literatura-brasileira-contemporanea' },
+  { id:1, icon:'🧭', name:'Rota Revelada', price:'R$300', desc:'Resolve a bagunça da sua cabeça e te dá norte.',              url:'https://loja.infinitepay.io/avalonamanda/wht6780-rota-revelada' },
+  { id:2, icon:'🌙', name:'Templo de Inanna', price:'R$370', desc:'Resolve a bagunça do seu coração e te dá soberania.',          url:'https://loja.infinitepay.io/avalonamanda/znz7691-caderno-artesanal-de-couro' },
+  { id:3, icon:'🏴‍☠️', name:'Carta de Travessia', price:'R$270', desc:'Decodifica seu ano com 10 segredos.', url:'https://loja.infinitepay.io/avalonamanda/ukj9401-graphic-novel-importada' },
+  { id:4, icon:'🌊', name:'Mapa de Navegação', price:'R$471', desc:'Organiza o seu ano com clareza absoluta.',              url:'https://loja.infinitepay.io/avalonamanda/uad5238-literatura-brasileira-contemporanea' },
 ];
 const AVAIL = [3,4];
 const SLOTS = [
@@ -1080,12 +1093,23 @@ function renderCal(){
   WDAYS.forEach(d=>{const e=document.createElement('div');e.className='cal-wkday';e.textContent=d;g.appendChild(e);});
   const fd=new Date(S.year,S.month,1).getDay(),tot=new Date(S.year,S.month+1,0).getDate();
   for(let i=0;i<fd;i++){const e=document.createElement('div');e.className='cal-day empty';g.appendChild(e);}
+  // 24h cutoff
+  const cutoff = new Date(); cutoff.setHours(cutoff.getHours()+24);
+  const occ = S.occupied || [];
   for(let d=1;d<=tot;d++){
     const date=new Date(S.year,S.month,d),dow=date.getDay();
-    const past=date<today,avail=AVAIL.includes(dow)&&!past;
+    const past=date<today;
+    const tooSoon=date<cutoff;
+    const baseAvail=AVAIL.includes(dow)&&!past&&!tooSoon;
+    // check fully booked
+    const dayOcc=occ.filter(o=>o.day===d);
+    const allSlotsBooked=!isCarta()&&dayOcc.filter(o=>o.slot!=='allday').length>=3;
+    const allDayBooked=isCarta()&&dayOcc.some(o=>o.slot==='allday');
+    const fullyBooked=allSlotsBooked||allDayBooked;
+    const avail=baseAvail&&!fullyBooked;
     const sel=S.date&&S.date.getDate()===d&&S.date.getMonth()===S.month&&S.date.getFullYear()===S.year;
     const e=document.createElement('div');e.textContent=d;
-    e.className='cal-day'+(past&&!avail?' past':'')+(avail?' avail':'')+(sel?' sel':'');
+    e.className='cal-day'+(past||tooSoon?(!baseAvail?' past':''):'')+(!past&&!tooSoon&&fullyBooked?' full':'')+(avail?' avail':'')+(sel?' sel':'');
     if(avail)e.addEventListener('click',()=>pickDate(date));
     g.appendChild(e);
   }
@@ -1132,7 +1156,7 @@ function renderProds(){
   PRODUCTS.forEach((p,i)=>{
     const c=document.createElement('div');
     c.className='prod-card'+(S.prod===i?' sel':'');
-    c.innerHTML=`<div class="prod-icon">${p.icon}</div><div class="prod-body"><div class="prod-name">${p.name}</div><div class="prod-desc">${p.desc}</div></div><div class="prod-check">✓</div>`;
+    c.innerHTML=`<div class="prod-icon">${p.icon}</div><div class="prod-body"><div class="prod-name">${p.name} <span class="prod-price">${p.price}</span></div><div class="prod-desc">${p.desc}</div></div><div class="prod-check">✓</div>`;
     c.addEventListener('click',()=>{S.prod=i;renderProds();chk1();});
     w.appendChild(c);
   });
