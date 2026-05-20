@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agendamentos — Amanda Avalon</title>
+<style>
+@import url(https://db.onlinewebfonts.com/c/4c35e23adf5b6b2b02a4e5fce0578789?family=Object+Sans);
+@import url(https://db.onlinewebfonts.com/c/2c92bbf252044dd4594cb48e25430c22?family=Object+Sans+Bold);
+@import url(https://db.onlinewebfonts.com/c/9366bd460113d8bf675fd2bdfe1ce764?family=The+Seasons);
+@import url(https://db.onlinewebfonts.com/c/f7d34c9e4c3102c89048d775c27a78f3?family=The+Seasons+Bold);
+
+:root {
+  --bg:       #c8d8f0;
+  --bg2:      #d8e4f5;
+  --grid:     #a8b8d8;
+  --win-bg:   #dce8f8;
+  --win-bg2:  #eaf0fc;
+  --titlebar: #7090c8;
+  --titlebar2:#9ab0e0;
+  --border:   #5070a8;
+  --border-l: #a8bcd8;
+  --btn-face: #c0d0e8;
+  --btn-hi:   #e8f0fc;
+  --btn-sh:   #5070a8;
+  --cyan:     #60c8f0;
+  --purple:   #9878d8;
+  --pink:     #e890c8;
+  --star:     #f0e060;
+  --text:     #2840608;
+  --text-dark:#1a2840;
+  --text-mid: #4060a0;
+  --text-dim: #7890b8;
+  --fn-body:  'Object Sans','DM Sans',sans-serif;
+  --fn-bold:  'Object Sans Bold','DM Sans',sans-serif;
+  --fn-serif: 'Times New Roman',Times,serif;
+  --fn-seas:  'The Seasons',Georgia,serif;
+  --fn-seasb: 'The Seasons Bold',Georgia,serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-attachment: fixed;
+  min-height: 100vh;
+  font-family: var(--fn-body);
+  color: var(--text-dark);
+  overflow-x: hidden;
+  padding: 32px 16px 80px;
+}
+
+/* ── FLOATING DECO ── */
+.deco-star {
+  position: fixed;
+  pointer-events: none;
+  font-size: 1rem;
+  opacity: 0.5;
+  animation: twinkle 3s ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+  from { opacity: 0.3; transform: scale(0.9); }
+  to   { opacity: 0.7; transform: scale(1.1); }
+}
+
+/* ── OS WINDOW ── */
+.os-window {
+  background: var(--win-bg);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  box-shadow:
+    inset 1px 1px 0 var(--btn-hi),
+    inset -1px -1px 0 var(--btn-sh),
+    4px 6px 16px rgba(40,60,120,0.18),
+    8px 12px 32px rgba(40,60,120,0.1);
+  overflow: hidden;
+  max-width: 680px;
+  margin: 0 auto 24px;
+  position: relative;
+}
+
+/* Title bar */
+.titlebar {
+  background: linear-gradient(90deg, var(--titlebar), var(--titlebar2));
+  padding: 7px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px 10px 0 0;
+  user-select: none;
+}
+.titlebar-icon {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.titlebar-title {
+  font-family: var(--fn-bold);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: #fff;
+  flex: 1;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.titlebar-btns {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.tb-btn {
+  width: 16px; height: 16px;
+  border-radius: 3px;
+  border: 1px solid rgba(0,0,0,0.25);
+  background: var(--btn-face);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.5rem;
+  color: var(--text-dark);
+  cursor: default;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.6), inset -1px -1px 0 rgba(0,0,0,0.15);
+  font-weight: bold;
+}
+
+/* Menu bar */
+.menubar {
+  background: var(--win-bg2);
+  border-bottom: 1px solid var(--border-l);
+  padding: 3px 12px;
+  display: flex;
+  gap: 16px;
+}
+.menu-item {
+  font-family: var(--fn-body);
+  font-size: 0.68rem;
+  color: var(--text-mid);
+  cursor: default;
+  padding: 2px 4px;
+}
+.menu-item:hover {
+  background: var(--titlebar);
+  color: #fff;
+  border-radius: 2px;
+}
+
+/* Window content area */
+.win-body {
+  padding: 20px 22px;
+}
+
+/* ── HEADER WINDOW ── */
+.header-win {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 20px;
+}
+.header-win .win-body {
+  padding: 28px 24px 24px;
+}
+
+.constellation-wrap {
+  margin: 0 auto 16px;
+  width: 100px;
+  opacity: 0.75;
+}
+
+.site-eyebrow {
+  font-family: var(--fn-body);
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+
+.site-title {
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+.site-title .light {
+  font-family: var(--fn-seas);
+  font-style: italic;
+  font-size: clamp(1.3rem, 4vw, 1.9rem);
+  color: var(--text-mid);
+  display: block;
+}
+.site-title .heavy {
+  font-family: var(--fn-seasb);
+  font-size: clamp(2rem, 6vw, 3rem);
+  color: var(--titlebar);
+  display: block;
+  letter-spacing: -0.01em;
+}
+
+.site-sub {
+  font-family: var(--fn-body);
+  font-style: normal;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+  letter-spacing: 0.04em;
+}
+
+/* pixel divider */
+.px-divider {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 16px auto;
+  max-width: 240px;
+  justify-content: center;
+}
+.px-divider span {
+  font-size: 0.6rem;
+  color: var(--purple);
+  letter-spacing: 4px;
+}
+.px-divider::before, .px-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-l);
+}
+
+/* ── STATUS BAR ── */
+.statusbar {
+  background: var(--win-bg2);
+  border-top: 1px solid var(--border-l);
+  padding: 4px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.status-pill {
+  font-family: var(--fn-body);
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #60d890;
+  flex-shrink: 0;
+}
+
+/* ── STEPS (like a toolbar) ── */
+.steps-bar {
+  background: var(--win-bg2);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  max-width: 680px;
+  margin: 0 auto 20px;
+  box-shadow: 2px 3px 8px rgba(40,60,120,0.12);
+}
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+  position: relative;
+}
+.step-item:not(:last-child)::after {
+  content: '›';
+  position: absolute;
+  right: 0;
+  color: var(--border-l);
+  font-size: 1rem;
+}
+.step-num {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  border: 2px solid var(--border-l);
+  background: var(--btn-face);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--fn-bold);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.7), inset -1px -1px 0 rgba(0,0,0,0.1);
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+.step-lbl {
+  font-family: var(--fn-body);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  transition: all 0.3s;
+}
+.step-item.active .step-num {
+  background: linear-gradient(135deg, var(--titlebar), var(--purple));
+  border-color: var(--titlebar);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(112,144,200,0.4), inset 1px 1px 0 rgba(255,255,255,0.3);
+}
+.step-item.active .step-lbl { color: var(--titlebar); font-family: var(--fn-bold); }
+.step-item.done .step-num {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #fff;
+}
+.step-item.done .step-lbl { color: var(--text-mid); }
+.step-item.done {
+  cursor: pointer;
+}
+.step-item.done:hover .step-num {
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  border-color: var(--purple);
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(152,120,216,0.35);
+}
+.step-item.done:hover .step-lbl {
+  color: var(--purple);
+  font-family: var(--fn-bold);
+}
+
+/* ── PANEL ── */
+.panel { display: none; animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+.panel.on { display: block; }
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── SECTION LABEL (inside window body) ── */
+.sec-label {
+  font-family: var(--fn-bold);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--titlebar);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sec-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-l);
+}
+
+/* ── CALENDAR ── */
+.cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.cal-month {
+  font-family: var(--fn-seasb);
+  font-size: 1rem;
+  color: var(--titlebar);
+}
+.cal-arr {
+  background: var(--btn-face);
+  border: 2px solid var(--border-l);
+  border-radius: 6px;
+  width: 30px; height: 30px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-mid);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.8), inset -1px -1px 0 rgba(0,0,0,0.1);
+  transition: all 0.15s;
+}
+.cal-arr:hover {
+  background: var(--titlebar);
+  color: #fff;
+  border-color: var(--titlebar);
+}
+.cal-arr:active { transform: translateY(1px); }
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 22px;
+}
+.cal-wkday {
+  text-align: center;
+  font-family: var(--fn-bold);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  padding: 6px 0;
+  text-transform: uppercase;
+}
+.cal-day {
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--fn-body);
+  font-size: 0.82rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  color: var(--text-dim);
+  transition: all 0.15s;
+  cursor: default;
+  position: relative;
+}
+.cal-day.empty { pointer-events: none; }
+.cal-day.past  { opacity: 0.3; pointer-events: none; }
+.cal-day.avail {
+  background: var(--win-bg2);
+  border-color: var(--border-l);
+  color: var(--text-dark);
+  cursor: pointer;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.7);
+}
+.cal-day.avail:hover {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(96,200,240,0.4);
+  transform: scale(1.08);
+}
+.cal-day.avail::after {
+  content: '★';
+  position: absolute;
+  bottom: 1px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.35rem;
+  color: var(--purple);
+  opacity: 0.8;
+}
+.cal-day.sel {
+  background: linear-gradient(135deg, var(--titlebar), var(--purple));
+  border-color: var(--titlebar);
+  color: #fff;
+  font-family: var(--fn-bold);
+  box-shadow: 0 3px 10px rgba(112,144,200,0.5);
+  transform: scale(1.05);
+}
+.cal-day.sel::after { display: none; }
+
+/* ── DELIVERY NOTICE ── */
+.delivery-notice {
+  background: rgba(152,120,216,0.1);
+  border: 2px dashed rgba(152,120,216,0.35);
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-family: var(--fn-body);
+  font-size: 0.82rem;
+  color: var(--text-mid);
+  line-height: 1.65;
+  margin-top: 16px;
+  text-align: center;
+}
+.delivery-notice strong {
+  font-family: var(--fn-bold);
+  color: var(--purple);
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.88rem;
+}
+
+/* ── SLOTS ── */
+.slots-head {
+  font-family: var(--fn-body);
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.slot {
+  background: var(--win-bg2);
+  border: 2px solid var(--border-l);
+  border-radius: 10px;
+  padding: 14px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.8), 2px 3px 6px rgba(40,60,120,0.08);
+}
+.slot:hover {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 4px 12px rgba(96,200,240,0.4);
+}
+.slot:hover .slot-time, .slot:hover .slot-dur { color: #fff; }
+.slot.sel {
+  background: linear-gradient(135deg, var(--titlebar), var(--purple));
+  border-color: var(--titlebar);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(112,144,200,0.4);
+}
+.slot.sel .slot-time, .slot.sel .slot-dur { color: #fff; }
+.slot-time {
+  font-family: var(--fn-bold);
+  font-size: 1rem;
+  color: var(--titlebar);
+  display: block;
+  margin-bottom: 3px;
+}
+.slot-dur {
+  font-family: var(--fn-body);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+
+/* ── PRODUCTS ── */
+.products { display: flex; flex-direction: column; gap: 10px; }
+.prod-card {
+  background: var(--win-bg2);
+  border: 2px solid var(--border-l);
+  border-radius: 10px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.8), 2px 3px 8px rgba(40,60,120,0.07);
+  position: relative;
+  overflow: hidden;
+}
+.prod-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--border-l);
+  border-radius: 10px 0 0 10px;
+  transition: background 0.2s;
+}
+.prod-card:hover {
+  border-color: var(--purple);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(152,120,216,0.2);
+}
+.prod-card:hover::before { background: var(--purple); }
+.prod-card.sel {
+  border-color: var(--titlebar);
+  background: linear-gradient(135deg, rgba(112,144,200,0.08), rgba(152,120,216,0.06));
+}
+.prod-card.sel::before { background: linear-gradient(180deg, var(--titlebar), var(--purple)); }
+
+.prod-icon {
+  width: 38px; height: 38px;
+  background: var(--win-bg);
+  border: 2px solid var(--border-l);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.9);
+}
+.prod-body { flex: 1; }
+.prod-name {
+  font-family: var(--fn-bold);
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--titlebar);
+  margin-bottom: 4px;
+}
+.prod-desc {
+  font-family: var(--fn-bold);
+  font-size: 0.84rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.prod-check {
+  width: 22px; height: 22px;
+  border: 2px solid var(--border-l);
+  border-radius: 6px;
+  background: var(--win-bg);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem;
+  color: transparent;
+  margin-top: 2px;
+  transition: all 0.2s;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.8);
+}
+.prod-card.sel .prod-check {
+  background: linear-gradient(135deg, var(--titlebar), var(--purple));
+  border-color: var(--titlebar);
+  color: #fff;
+}
+
+/* ── FORM ── */
+.form-grp { margin-bottom: 16px; }
+.form-lbl {
+  display: block;
+  font-family: var(--fn-bold);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  margin-bottom: 6px;
+}
+.form-inp {
+  width: 100%;
+  background: var(--win-bg2);
+  border: 2px solid var(--border-l);
+  border-radius: 8px;
+  color: var(--text-dark);
+  padding: 11px 14px;
+  font-family: var(--fn-body);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: inset 1px 1px 3px rgba(40,60,120,0.08);
+}
+.form-inp:focus {
+  border-color: var(--titlebar);
+  box-shadow: 0 0 0 3px rgba(112,144,200,0.2), inset 1px 1px 3px rgba(40,60,120,0.05);
+}
+.form-inp::placeholder { color: var(--text-dim); opacity: 0.7; }
+
+/* ── SUMMARY ── */
+.summary {
+  background: var(--win-bg2);
+  border: 2px solid var(--border-l);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 18px;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.8);
+}
+.sum-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--border-l);
+}
+.sum-row:last-child { border-bottom: none; }
+.sum-k {
+  font-family: var(--fn-body);
+  font-size: 0.88rem;
+  color: var(--text-dim);
+}
+.sum-v {
+  font-family: var(--fn-bold);
+  font-size: 0.76rem;
+  color: var(--titlebar);
+  text-align: right;
+  max-width: 58%;
+  line-height: 1.4;
+}
+
+/* ── NOTICE ── */
+.notice {
+  background: rgba(152,120,216,0.08);
+  border: 2px solid rgba(152,120,216,0.25);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-family: var(--fn-body);
+  font-size: 0.82rem;
+  color: var(--text-mid);
+  line-height: 1.65;
+  margin-bottom: 16px;
+}
+.notice strong {
+  font-family: var(--fn-bold);
+  font-style: normal;
+  color: var(--titlebar);
+}
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center; justify-content: center; gap: 8px;
+  font-family: var(--fn-bold);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  text-decoration: none;
+  padding: 12px 24px;
+  width: 100%;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--titlebar), var(--purple));
+  color: #fff;
+  border-color: var(--titlebar);
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.25), 0 3px 10px rgba(112,144,200,0.35);
+}
+.btn-primary:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 6px 18px rgba(112,144,200,0.45);
+}
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+.btn-ghost {
+  background: var(--win-bg2);
+  color: var(--text-mid);
+  border-color: var(--border-l);
+  width: auto;
+  font-size: 0.68rem;
+  padding: 8px 16px;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.8), 1px 2px 4px rgba(40,60,120,0.08);
+}
+.btn-ghost:hover {
+  border-color: var(--titlebar);
+  color: var(--titlebar);
+  transform: translateY(-1px);
+}
+.btn-wpp {
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: #fff;
+  border-color: #25D366;
+  margin-bottom: 10px;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.2), 0 3px 10px rgba(37,211,102,0.3);
+}
+.btn-wpp:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(37,211,102,0.4);
+}
+
+.back { margin-bottom: 18px; }
+#after-pay { display: none; margin-top: 16px; }
+
+/* ── PIXEL CURSOR DECO ── */
+.cursor-deco {
+  position: fixed;
+  bottom: 40px; right: 32px;
+  font-size: 1.4rem;
+  opacity: 0.35;
+  pointer-events: none;
+  animation: float 4s ease-in-out infinite alternate;
+}
+@keyframes float {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-8px); }
+}
+
+@media (max-width: 500px) {
+  .slots-grid { grid-template-columns: 1fr 1fr; }
+  .steps-bar { flex-wrap: wrap; gap: 6px; }
+  .step-item::after { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Floating deco stars -->
+<div class="deco-star" style="top:8%; left:4%; animation-delay:0s;">✦</div>
+<div class="deco-star" style="top:15%; right:6%; animation-delay:0.7s; font-size:0.7rem;">★</div>
+<div class="deco-star" style="top:40%; left:2%; animation-delay:1.4s; font-size:0.8rem;">✧</div>
+<div class="deco-star" style="top:60%; right:3%; animation-delay:0.3s;">✦</div>
+<div class="deco-star" style="bottom:20%; left:5%; animation-delay:1s; font-size:0.7rem;">★</div>
+<div class="cursor-deco">⛵</div>
+
+<!-- ── HEADER WINDOW ── -->
+<div class="os-window header-win">
+  <div class="titlebar">
+    <span class="titlebar-icon">🌙</span>
+    <span class="titlebar-title">avalon.agendamentos.exe</span>
+    <div class="titlebar-btns">
+      <div class="tb-btn">_</div>
+      <div class="tb-btn">□</div>
+      <div class="tb-btn">✕</div>
+    </div>
+  </div>
+  <div class="menubar">
+    <span class="menu-item">Arquivo</span>
+    <span class="menu-item">Editar</span>
+    <span class="menu-item">Visualizar</span>
+    <span class="menu-item">Ajuda</span>
+  </div>
+  <div class="win-body">
+    <svg class="constellation-wrap" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="starCenter" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#eaf0fc" stop-opacity="1"/>
+          <stop offset="35%"  stop-color="#9ab0e0" stop-opacity="0.85"/>
+          <stop offset="100%" stop-color="#7090c8" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="starGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#9878d8" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#9878d8" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <!-- soft glow -->
+      <ellipse cx="50" cy="50" rx="30" ry="30" fill="url(#starGlow)"/>
+      <!-- 4-pointed elongated star dalva shape -->
+      <path d="M50,3 C50.8,30 52,48 54,50 C56,52 70,50.8 97,50 C70,49.2 56,48 54,50 C52,52 50.8,70 50,97 C49.2,70 48,52 46,50 C44,48 30,49.2 3,50 C30,50.8 44,52 46,50 C48,48 49.2,30 50,3 Z" fill="url(#starCenter)" opacity="0.95"/>
+    </svg>
+
+    <p class="site-eyebrow">Escola Travessias · Amanda Avalon</p>
+    <div class="site-title">
+      <span class="light">Calendário de</span>
+      <span class="heavy">Agendamentos</span>
+    </div>
+    <p class="site-sub">Escolha sua data e inicie a travessia</p>
+    <div class="px-divider"><span>✦ ✦ ✦</span></div>
+  </div>
+  <div class="statusbar">
+    <div class="status-pill"><div class="status-dot"></div> Online · Quartas e Quintas</div>
+    <div class="status-pill">🕐 1h a 1h30 por sessão</div>
+  </div>
+</div>
+
+<!-- ── STEPS BAR ── -->
+<div class="steps-bar" id="steps">
+  <div class="step-item active" id="step-1">
+    <div class="step-num">01</div>
+    <div class="step-lbl">Serviço</div>
+  </div>
+  <div class="step-item" id="step-2">
+    <div class="step-num">02</div>
+    <div class="step-lbl">Data</div>
+  </div>
+  <div class="step-item" id="step-3">
+    <div class="step-num">03</div>
+    <div class="step-lbl">Dados</div>
+  </div>
+  <div class="step-item" id="step-4">
+    <div class="step-num">04</div>
+    <div class="step-lbl">Pagamento</div>
+  </div>
+</div>
+
+<!-- ── PANEL 1 ── -->
+<div class="panel on" id="panel-1">
+  <div class="os-window">
+    <div class="titlebar">
+      <span class="titlebar-icon">📅</span>
+      <span class="titlebar-title">calendario.exe — Escolha data e horário</span>
+      <div class="titlebar-btns">
+        <div class="tb-btn">_</div><div class="tb-btn">□</div><div class="tb-btn">✕</div>
+      </div>
+    </div>
+    <div class="win-body">
+      <div class="products" id="prods"></div>
+    </div>
+    <div class="statusbar" style="justify-content:flex-end; padding: 8px 16px;">
+      <button class="btn btn-primary" id="btn1" disabled style="width:auto; padding:10px 28px;">Continuar ›</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PANEL 2 ── -->
+<div class="panel" id="panel-2">
+  <div class="os-window">
+    <div class="titlebar">
+      <span class="titlebar-icon">✨</span>
+      <span class="titlebar-title">servicos.exe — Escolha seu serviço</span>
+      <div class="titlebar-btns">
+        <div class="tb-btn">_</div><div class="tb-btn">□</div><div class="tb-btn">✕</div>
+      </div>
+    </div>
+    <div class="win-body">
+      <div class="back"><button class="btn btn-ghost" onclick="go(1)">‹ Voltar</button></div>
+      <div class="cal-nav">
+        <button class="cal-arr" id="prev-m">&#8592;</button>
+        <div class="cal-month" id="cal-lbl"></div>
+        <button class="cal-arr" id="next-m">&#8594;</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div id="slots-wrap" style="display:none;">
+        <div class="slots-head" id="slots-head"></div>
+        <div class="slots-grid" id="slots-grid"></div>
+      </div>
+      <div id="delivery-notice" class="delivery-notice" style="display:none;">
+        <strong>🏴&#x200D;☠️ Carta de Travessia — Entrega digital</strong>
+        Este é um serviço não presencial. Após o pagamento, você receberá sua Carta de Travessia em até <strong style="display:inline; color:var(--purple);">15 dias úteis</strong> no e-mail informado.
+      </div>
+    </div>
+    <div class="statusbar" style="justify-content:flex-end; padding: 8px 16px;">
+      <button class="btn btn-primary" id="btn2" disabled style="width:auto; padding:10px 28px;">Continuar ›</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PANEL 3 ── -->
+<div class="panel" id="panel-3">
+  <div class="os-window">
+    <div class="titlebar">
+      <span class="titlebar-icon">🧭</span>
+      <span class="titlebar-title">navegante.exe — Seus dados</span>
+      <div class="titlebar-btns">
+        <div class="tb-btn">_</div><div class="tb-btn">□</div><div class="tb-btn">✕</div>
+      </div>
+    </div>
+    <div class="win-body">
+      <div class="back"><button class="btn btn-ghost" onclick="go(2)">‹ Voltar</button></div>
+      <div class="form-grp">
+        <label class="form-lbl" for="f-name">Nome completo</label>
+        <input class="form-inp" type="text" id="f-name" placeholder="Como gostaria de ser chamada?">
+      </div>
+      <div class="form-grp">
+        <label class="form-lbl" for="f-email">E-mail</label>
+        <input class="form-inp" type="email" id="f-email" placeholder="seu@email.com">
+      </div>
+      <div class="form-grp">
+        <label class="form-lbl" for="f-phone">WhatsApp</label>
+        <input class="form-inp" type="tel" id="f-phone" placeholder="(11) 99999-9999">
+      </div>
+      <div class="form-grp">
+        <label class="form-lbl" for="f-birth">Data de nascimento</label>
+        <input class="form-inp" type="date" id="f-birth">
+      </div>
+      <div class="form-grp">
+        <label class="form-lbl" for="f-gender">Identidade de gênero</label>
+        <input class="form-inp" type="text" id="f-gender" placeholder="Como você se identifica e como quer ser tratada/tratado/tratade?">
+      </div>
+    </div>
+    <div class="statusbar" style="justify-content:flex-end; padding: 8px 16px;">
+      <button class="btn btn-primary" id="btn3" disabled style="width:auto; padding:10px 28px;">Ir para o pagamento ›</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PANEL 4 ── -->
+<div class="panel" id="panel-4">
+  <div class="os-window">
+    <div class="titlebar">
+      <span class="titlebar-icon">💫</span>
+      <span class="titlebar-title">pagamento.exe — Confirme e pague</span>
+      <div class="titlebar-btns">
+        <div class="tb-btn">_</div><div class="tb-btn">□</div><div class="tb-btn">✕</div>
+      </div>
+    </div>
+    <div class="win-body">
+      <div class="back"><button class="btn btn-ghost" onclick="go(3)">‹ Voltar</button></div>
+      <div class="summary" id="summary-box"></div>
+      <div class="notice">
+        Ao clicar em <strong>Realizar Pagamento</strong>, você será levada à página do seu serviço. Após concluir, envie o comprovante pelo WhatsApp para que Amanda confirme seu horário.
+      </div>
+      <a class="btn btn-primary" id="pay-btn" href="#" target="_blank" rel="noopener" onclick="afterPay()">
+        ✦ Realizar Pagamento
+      </a>
+      <div id="after-pay">
+        <a class="btn btn-wpp" href="https://wa.me/message/EU4VCDBX7WORH1" target="_blank" rel="noopener" style="margin-top:12px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Enviar comprovante pelo WhatsApp
+        </a>
+        <div class="notice">
+          Seu horário ficará reservado assim que Amanda confirmar o comprovante. Você receberá a confirmação em até 24h.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PRODUCTS = [
+  { id:1, icon:'🧭', name:'Rota Revelada',     desc:'Leitura e orientação para o mapeamento do seu caminho sagrado',              url:'https://loja.infinitepay.io/avalonamanda/wht6780-rota-revelada' },
+  { id:2, icon:'🌙', name:'Templo de Inanna',   desc:'Sessão de imersão nos mistérios do feminino sagrado e da descida',          url:'https://loja.infinitepay.io/avalonamanda/znz7691-caderno-artesanal-de-couro' },
+  { id:3, icon:'🏴‍☠️', name:'Carta de Travessia', desc:'Leitura aprofundada de cartas para momentos de transição e encruzilhadas', url:'https://loja.infinitepay.io/avalonamanda/ukj9401-graphic-novel-importada' },
+  { id:4, icon:'🌊', name:'Mapa de Navegação',  desc:'Sessão de acompanhamento contínuo e orientação transpessoal',              url:'https://loja.infinitepay.io/avalonamanda/uad5238-literatura-brasileira-contemporanea' },
+];
+const AVAIL = [3,4];
+const SLOTS = [
+  {label:'12:00',end:'13:00'},
+  {label:'13:30',end:'14:30'},
+  {label:'15:00',end:'16:00'},
+];
+const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const WDAYS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const WNAMES=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+
+const S={month:new Date().getMonth(),year:new Date().getFullYear(),date:null,slot:null,prod:null,name:'',email:'',phone:''};
+
+function renderCal(){
+  const g=document.getElementById('cal-grid'),l=document.getElementById('cal-lbl');
+  const today=new Date();today.setHours(0,0,0,0);
+  l.textContent=MONTHS[S.month]+' '+S.year;
+  g.innerHTML='';
+  WDAYS.forEach(d=>{const e=document.createElement('div');e.className='cal-wkday';e.textContent=d;g.appendChild(e);});
+  const fd=new Date(S.year,S.month,1).getDay(),tot=new Date(S.year,S.month+1,0).getDate();
+  for(let i=0;i<fd;i++){const e=document.createElement('div');e.className='cal-day empty';g.appendChild(e);}
+  for(let d=1;d<=tot;d++){
+    const date=new Date(S.year,S.month,d),dow=date.getDay();
+    const past=date<today,avail=AVAIL.includes(dow)&&!past;
+    const sel=S.date&&S.date.getDate()===d&&S.date.getMonth()===S.month&&S.date.getFullYear()===S.year;
+    const e=document.createElement('div');e.textContent=d;
+    e.className='cal-day'+(past&&!avail?' past':'')+(avail?' avail':'')+(sel?' sel':'');
+    if(avail)e.addEventListener('click',()=>pickDate(date));
+    g.appendChild(e);
+  }
+}
+function isCarta(){ return S.prod !== null && PRODUCTS[S.prod].id === 3; }
+
+function pickDate(date){
+  S.date=date; S.slot=null; renderCal();
+  if(isCarta()){
+    // Carta de Travessia: no slots needed, just picking the date is enough
+    document.getElementById('slots-wrap').style.display='none';
+    document.getElementById('delivery-notice').style.display='block';
+    chk2();
+  } else {
+    renderSlots();
+    document.getElementById('slots-wrap').style.display='block';
+    document.getElementById('delivery-notice').style.display='none';
+    chk2();
+  }
+}
+function renderSlots(){
+  const g=document.getElementById('slots-grid'),h=document.getElementById('slots-head');
+  h.textContent=WNAMES[S.date.getDay()]+', '+S.date.getDate()+' de '+MONTHS[S.date.getMonth()]+' — Horários disponíveis';
+  g.innerHTML='';
+  SLOTS.forEach((sl,i)=>{
+    const e=document.createElement('div');
+    e.className='slot'+(S.slot===i?' sel':'');
+    e.innerHTML=`<span class="slot-time">${sl.label}</span>`;
+    e.addEventListener('click',()=>{S.slot=i;renderSlots();chk2();});
+    g.appendChild(e);
+  });
+}
+function chk1(){document.getElementById('btn1').disabled=!(S.prod!==null);}
+
+document.getElementById('prev-m').addEventListener('click',()=>{S.month--;if(S.month<0){S.month=11;S.year--;}renderCal();});
+document.getElementById('next-m').addEventListener('click',()=>{S.month++;if(S.month>11){S.month=0;S.year++;}renderCal();});
+document.getElementById('btn1').addEventListener('click',()=>go(2));
+
+function renderProds(){
+  const w=document.getElementById('prods');w.innerHTML='';
+  PRODUCTS.forEach((p,i)=>{
+    const c=document.createElement('div');
+    c.className='prod-card'+(S.prod===i?' sel':'');
+    c.innerHTML=`<div class="prod-icon">${p.icon}</div><div class="prod-body"><div class="prod-name">${p.name}</div><div class="prod-desc">${p.desc}</div></div><div class="prod-check">✓</div>`;
+    c.addEventListener('click',()=>{S.prod=i;renderProds();chk1();});
+    w.appendChild(c);
+  });
+}
+function chk2(){document.getElementById('btn2').disabled=!(S.date&&(isCarta()||S.slot!==null));}
+document.getElementById('btn2').addEventListener('click',()=>go(3));
+
+function chkForm(){
+  document.getElementById('btn3').disabled=!(document.getElementById('f-name').value.trim()&&document.getElementById('f-email').value.trim()&&document.getElementById('f-phone').value.trim());
+}
+['f-name','f-email','f-phone'].forEach(id=>document.getElementById(id).addEventListener('input',chkForm));
+document.getElementById('btn3').addEventListener('click',()=>{
+  S.name=document.getElementById('f-name').value.trim();
+  S.email=document.getElementById('f-email').value.trim();
+  S.phone=document.getElementById('f-phone').value.trim();
+  S.birth=document.getElementById('f-birth').value;
+  S.gender=document.getElementById('f-gender').value.trim();
+  go(4);renderSummary();
+});
+
+function renderSummary(){
+  const p=PRODUCTS[S.prod],sl=S.slot!==null?SLOTS[S.slot]:null;
+  const ds=WNAMES[S.date.getDay()]+', '+S.date.getDate()+' de '+MONTHS[S.date.getMonth()]+' de '+S.date.getFullYear();
+  document.getElementById('summary-box').innerHTML=`
+    <div class="sum-row"><span class="sum-k">Serviço</span><span class="sum-v">${p.name}</span></div>
+    <div class="sum-row"><span class="sum-k">Data</span><span class="sum-v">${ds}</span></div>
+    ${sl ? '<div class="sum-row"><span class="sum-k">Horário</span><span class="sum-v">'+sl.label+' – '+sl.end+'</span></div>' : '<div class="sum-row"><span class="sum-k">Entrega</span><span class="sum-v">Até 15 dias úteis por e-mail</span></div>'}
+    <div class="sum-row"><span class="sum-k">Navegante</span><span class="sum-v">${S.name}</span></div>
+    <div class="sum-row"><span class="sum-k">E-mail</span><span class="sum-v">${S.email}</span></div>
+    <div class="sum-row"><span class="sum-k">Nascimento</span><span class="sum-v">${S.birth ? new Date(S.birth+'T12:00:00').toLocaleDateString('pt-BR') : '—'}</span></div>
+    <div class="sum-row"><span class="sum-k">Identidade de gênero</span><span class="sum-v">${S.gender||'—'}</span></div>`;
+  document.getElementById('pay-btn').href=p.url;
+}
+function afterPay(){
+  setTimeout(()=>{
+    document.getElementById('after-pay').style.display='block';
+    document.getElementById('after-pay').scrollIntoView({behavior:'smooth'});
+  },900);
+}
+// Track the furthest step reached
+let maxStep = 1;
+
+function go(n){
+  if(n > maxStep) maxStep = n;
+  for(let i=1;i<=4;i++){
+    document.getElementById('panel-'+i).classList.remove('on');
+    const s=document.getElementById('step-'+i);
+    s.classList.remove('active','done');
+    if(i<n)s.classList.add('done');else if(i===n)s.classList.add('active');
+  }
+  document.getElementById('panel-'+n).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===1)renderProds();
+  if(n===2){
+    renderCal();
+    if(S.date){
+      if(isCarta()){
+        document.getElementById('slots-wrap').style.display='none';
+        document.getElementById('delivery-notice').style.display='block';
+      } else {
+        document.getElementById('slots-wrap').style.display='block';
+        document.getElementById('delivery-notice').style.display='none';
+        renderSlots();
+      }
+    } else {
+      document.getElementById('slots-wrap').style.display='none';
+      document.getElementById('delivery-notice').style.display='none';
+    }
+  }
+  if(n===4)renderSummary();
+  // Update click listeners after each navigation
+  updateStepClicks();
+}
+
+function updateStepClicks(){
+  for(let i=1;i<=4;i++){
+    const s=document.getElementById('step-'+i);
+    // Remove old listener by cloning
+    const clone=s.cloneNode(true);
+    s.parentNode.replaceChild(clone,s);
+    if(i<=maxStep){
+      clone.style.cursor='pointer';
+      clone.addEventListener('click',((step)=>()=>go(step))(i));
+    }
+  }
+}
+
+renderProds();
+updateStepClicks();
+</script>
+</body>
+</html>
